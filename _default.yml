@@ -14,7 +14,11 @@ authentication:
     required: true
 
 request:
-  url_base: "https://api.salvy.com.br/api/v2"
+  # O prefixo /api/v2 fica nos paths dos endpoints, não aqui. Se a plataforma
+  # juntar url_base + endpoint via urljoin, um endpoint iniciado por "/" volta
+  # para a raiz do host e descartaria o /api/v2 — dando 404. Assim funciona
+  # tanto com urljoin quanto com concatenação simples.
+  url_base: "https://api.salvy.com.br"
   method: GET
   headers:
     Authorization: "Bearer <api_key>"
@@ -39,6 +43,6 @@ response:
 validation:
   # A v2 não expõe um /me. Este é o GET autenticado mais barato do conjunto:
   # devolve uma lista pequena e estática de DDDs e retorna 401 com chave inválida.
-  endpoint: "/virtual-phone-accounts/area-codes"
+  endpoint: "/api/v2/virtual-phone-accounts/area-codes"
   request:
     method: GET

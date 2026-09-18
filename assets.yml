@@ -4,7 +4,7 @@
 # obrigatórios na spec. Não há filtro "modificado desde", então é sync full.
 request:
   method: GET
-  endpoint: "/assets"
+  endpoint: "/api/v2/assets"
   params:
     page: "<page>"
     pageSize: "200"       # máximo permitido pela API

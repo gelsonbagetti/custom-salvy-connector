@@ -4,7 +4,7 @@
 # nem filtro incremental. Sync full a cada execução.
 request:
   method: GET
-  endpoint: "/virtual-phone-accounts"
+  endpoint: "/api/v2/virtual-phone-accounts"
 
 response:
   # UNVERIFIED: a spec declara a resposta 200 como um array JSON na raiz, sem
