@@ -1,0 +1,88 @@
+# GET /api/v2/assets — Listar equipamentos
+#
+# Ordenado por createdAt desc, desempate por id asc. `page` e `pageSize` são
+# obrigatórios na spec. Não há filtro "modificado desde", então é sync full.
+request:
+  method: GET
+  endpoint: "/assets"
+  params:
+    page: "<page>"
+    pageSize: "200"       # máximo permitido pela API
+    # Sem isto a API omite equipamentos arquivados (padrão false), e um
+    # equipamento arquivado sumiria da tabela sem deixar rastro.
+    includeArchived: "true"
+
+response:
+  # UNVERIFIED: envelope {data: [...], pagination: {...}} conforme a spec.
+  path: [data]
+  primary_key: [id]
+  pagination:
+    type: page
+    initial_value: 1      # a spec diz "Número da página, iniciando em 1"
+    path: [pagination, totalPages]
+
+fields:
+  - name: id
+    type: string
+  - name: enrollmentId
+    type: string
+  - name: category
+    type: string
+    nullable: true
+  - name: brand
+    type: string
+    nullable: true
+  - name: model
+    type: string
+    nullable: true
+  - name: vendorName
+    type: string
+    nullable: true
+  - name: serialNumber
+    type: string
+    nullable: true
+  - name: deviceId
+    type: string
+    nullable: true
+  - name: acquisitionDate
+    type: timestamp
+    nullable: true
+  # bought | rented | other
+  - name: acquisitionType
+    type: string
+    nullable: true
+  # A spec declara `number` (não `integer`), então float é a transcrição fiel
+  # apesar do nome sugerir centavos inteiros.
+  - name: priceCents
+    type: float
+    nullable: true
+  - name: nfeNumber
+    type: string
+    nullable: true
+  - name: contractId
+    type: string
+    nullable: true
+  - name: warrantyExpirationDate
+    type: timestamp
+    nullable: true
+  # available | in-use | allocated | maintenance | broken | lost | stolen | sold
+  # | donated | discarded | archived | obsolete | blocked | pending-verification
+  # | awaiting-quote
+  - name: status
+    type: string
+  - name: allocatedLocation
+    type: string
+    nullable: true
+  - name: employeeId
+    type: string
+    nullable: true
+  - name: employeeAttachedAt
+    type: timestamp
+    nullable: true
+  - name: createdAt
+    type: timestamp
+  # manual | sheets-import | nfe-import | desktop-client | mobile-app | android-mdm
+  - name: source
+    type: string
+  - name: customFields
+    type: json

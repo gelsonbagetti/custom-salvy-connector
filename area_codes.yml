@@ -1,0 +1,19 @@
+# GET /api/v2/virtual-phone-accounts/area-codes
+# Tabela de referência: DDDs e sua disponibilidade para novos números virtuais.
+# Requisição única, sem paginação.
+request:
+  method: GET
+  endpoint: "/virtual-phone-accounts/area-codes"
+  # O parâmetro opcional `available` é omitido de propósito: sem ele a API
+  # devolve todos os DDDs, com a disponibilidade no próprio campo `available`.
+
+response:
+  # UNVERIFIED: envelope {areaCodes: [...]} conforme a spec.
+  path: [areaCodes]
+  primary_key: [areaCode]
+
+fields:
+  - name: areaCode
+    type: integer
+  - name: available
+    type: boolean
