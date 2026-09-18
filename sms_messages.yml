@@ -1,0 +1,58 @@
+# GET /api/v2/virtual-phone-accounts/{id}/sms-messages
+# Mensagens SMS recebidas por número virtual, ordenadas por receivedAt desc.
+#
+# Endpoint filho: uma requisição por linha virtual retornada por
+# virtual_phone_accounts.yml. Com N linhas e M páginas por linha, o custo é
+# N*M requisições por sync — o cursor abaixo mantém M baixo depois da carga inicial.
+dependency:
+  endpoint: virtual_phone_accounts
+  field: id
+  as: phone_account_id
+
+request:
+  method: GET
+  endpoint: "/virtual-phone-accounts/<phone_account_id>/sms-messages"
+  params:
+    page: "<page>"
+    pageSize: "200"       # máximo permitido pela API
+    # Sync incremental: recebe o maior receivedAt já sincronizado, formatado
+    # pelo cursor_timestamp_format do campo. O filtro é inclusivo, então a
+    # última mensagem volta a cada execução — o primary_key deduplica.
+    receivedAtFrom: "<receivedAt>"
+
+response:
+  # UNVERIFIED: envelope {smsMessages: [...], pagination: {...}} conforme a spec.
+  path: [smsMessages]
+  primary_key: [id]
+  pagination:
+    type: page
+    initial_value: 1
+    path: [pagination, totalPages]
+  http_codes:
+    # Uma linha listada pelo pai pode ter sido cancelada/removida entre a
+    # chamada do pai e a do filho. Aqui o 404 é esperado e não é falha —
+    # ao contrário das listagens, onde ele significaria caminho errado.
+    404:
+      ignore: true
+      message: "Linha virtual não encontrada (provavelmente cancelada) — ignorada."
+
+fields:
+  - name: id
+    type: string
+  - name: receivedAt
+    type: timestamp
+    cursor: true
+    # A API espera ISO8601 em receivedAtFrom; herda o formato do _default.yml,
+    # repetido aqui porque é o campo em que ele realmente importa.
+    cursor_timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+  - name: originPhoneNumber
+    type: string
+  - name: destinationPhoneNumber
+    type: string
+  - name: message
+    type: string
+  # Objeto com ~45 chaves opcionais de serviço (whatsapp, google, itau, ...),
+  # cada uma com um verificationCode. Guardado inteiro em vez de achatado —
+  # a lista de serviços detectados muda do lado da Salvy sem aviso.
+  - name: detections
+    type: json
